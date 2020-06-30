@@ -1,0 +1,16 @@
+version: '3'
+services:
+  carto:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+    container_name: carto
+    image: carto
+    working_dir: /opt/project
+    environment:
+      FLASK_APP: src/http_resources.py
+    ports:
+      - "5000:5000"
+    volumes:
+      - ./:/opt/project
+    command: python -m flask run --host=0.0.0.0

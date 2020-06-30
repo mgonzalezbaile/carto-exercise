@@ -10,7 +10,6 @@ Usage: $0 <COMMAND> <ARGUMENT>
 Commands:
   build     Build carto image
   start     Start the HTTP server
-  stop      Stop the HTTP server
   test      Run tests
 
 
@@ -24,17 +23,15 @@ EOF
 
 case "$COMMAND" in
     build)
-    docker build -t carto -f docker/Dockerfile .
+    docker-compose build
     ;;
 
     start)
-    ;;
-
-    stop)
+    docker-compose up
     ;;
 
     test)
-    docker run -it --rm carto python -m pytest /opt/project
+    docker-compose run carto python -m pytest
     ;;
 
     "")

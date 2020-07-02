@@ -48,16 +48,16 @@ def find_activities_by_criteria(criteria: FindActivitiesCriteria):
 
 
 def filter_by_criteria(criteria: FindActivitiesCriteria) -> callable:
-    if not criteria:
-        return lambda activity: activity
-
     return filter(
         lambda activity:
-        filter_by_key(activity, 'category', criteria) or
-        filter_by_key(activity, 'location', criteria) or
+        filter_by_key(activity, 'category', criteria) and
+        filter_by_key(activity, 'location', criteria) and
         filter_by_key(activity, 'district', criteria)
     )
 
 
 def filter_by_key(activity, key, criteria: FindActivitiesCriteria):
+    if not getattr(criteria, key):
+        return True
+
     return hasattr(criteria, key) and (activity[key] == getattr(criteria, key))

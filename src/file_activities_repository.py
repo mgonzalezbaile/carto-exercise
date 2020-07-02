@@ -8,7 +8,7 @@ from toolz.curried import filter, map
 from src.activities_repository import FindActivitiesCriteria
 
 
-def fetch_activities_by_criteria_geojson(criteria: FindActivitiesCriteria) -> List[dict]:
+def fetch_activities_by_criteria_geojson(criteria: FindActivitiesCriteria) -> dict:
     activities = read_file()
 
     filtered_activities = pipe(
@@ -17,7 +17,10 @@ def fetch_activities_by_criteria_geojson(criteria: FindActivitiesCriteria) -> Li
         map(lambda activity: convert_activity_into_geojson(activity))
     )
 
-    return list(filtered_activities)
+    return {
+        'type': 'FeatureCollection',
+        'features': list(filtered_activities)
+    }
 
 
 def is_activity_satisfied_by_criteria(activity: dict, criteria: FindActivitiesCriteria) -> bool:

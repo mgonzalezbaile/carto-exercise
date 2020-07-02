@@ -95,39 +95,43 @@ def test_should_fetch_activities_by_criteria_in_geojson_format():
         category='shopping'
     ))
 
-    assert_that(geojson_activities).is_equal_to([
-        {
-            'type': 'Feature',
-            'geometry': {
-                'type': 'Point',
-                'coordinates': [40.4087357, -3.7081466]
+    assert_that(geojson_activities).is_equal_to({
+        'type': 'FeatureCollection',
+        'features': [
+            {
+                'type': 'Feature',
+                'geometry': {
+                    'type': 'Point',
+                    'coordinates': [40.4087357, -3.7081466]
+                },
+                'properties': {
+                    'name': 'El Rastro',
+                    'opening_hours': {'mo': [], 'tu': [], 'we': [], 'th': [], 'fr': [], 'sa': [],
+                                      'su': ['09:00-15:00']},
+                    'hours_spent': 2.5,
+                    'category': 'shopping',
+                    'location': 'outdoors',
+                    'district': 'Centro',
+                    'latlng': [40.4087357, -3.7081466]
+                }
             },
-            'properties': {
-                'name': 'El Rastro',
-                'opening_hours': {'mo': [], 'tu': [], 'we': [], 'th': [], 'fr': [], 'sa': [], 'su': ['09:00-15:00']},
-                'hours_spent': 2.5,
-                'category': 'shopping',
-                'location': 'outdoors',
-                'district': 'Centro',
-                'latlng': [40.4087357, -3.7081466]
+            {
+                'type': 'Feature',
+                'geometry': {
+                    'type': 'Point',
+                    'coordinates': [40.4199837, -3.7054455]
+                },
+                'properties': {
+                    'name': 'Gran Vía',
+                    'opening_hours': {'mo': ['00:00-23:59'], 'tu': ['00:00-23:59'], 'we': ['00:00-23:59'],
+                                      'th': ['00:00-23:59'], 'fr': ['00:00-23:59'], 'sa': ['00:00-23:59'],
+                                      'su': ['00:00-23:59']},
+                    'hours_spent': 1,
+                    'category': 'shopping',
+                    'location': 'outdoors',
+                    'district': 'Centro',
+                    'latlng': [40.4199837, -3.7054455]
+                }
             }
-        },
-        {
-            'type': 'Feature',
-            'geometry': {
-                'type': 'Point',
-                'coordinates': [40.4199837, -3.7054455]
-            },
-            'properties': {
-                'name': 'Gran Vía',
-                'opening_hours': {'mo': ['00:00-23:59'], 'tu': ['00:00-23:59'], 'we': ['00:00-23:59'],
-                                  'th': ['00:00-23:59'], 'fr': ['00:00-23:59'], 'sa': ['00:00-23:59'],
-                                  'su': ['00:00-23:59']},
-                'hours_spent': 1,
-                'category': 'shopping',
-                'location': 'outdoors',
-                'district': 'Centro',
-                'latlng': [40.4199837, -3.7054455]
-            }
-        }
-    ])
+        ]
+    })

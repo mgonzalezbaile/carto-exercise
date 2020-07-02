@@ -52,3 +52,7 @@ def test_find_activities_by_criteria():
         assert_that(activity['location'] == 'outdoors').is_true()
         assert_that(activity['district'] == 'Centro').is_true()
         assert_that(activity['category'] == 'shopping').is_true()
+
+    activities = find_activities_by_criteria(FindActivitiesCriteria())
+
+    assert_that(len(activities)).is_equal_to(10)

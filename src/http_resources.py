@@ -17,3 +17,10 @@ def get_activities():
     ))
 
     return Response(response=json.dumps(result), headers={'Content-Type': 'application/json'})
+
+
+@app.route('/recommendations', methods=['GET'])
+def get_recommendations():
+    result = {}
+
+    return Response(response=json.dumps(result), headers={'Content-Type': 'application/json'})

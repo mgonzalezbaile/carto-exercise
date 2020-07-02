@@ -1,7 +1,7 @@
 import json
 import os
-import pathlib
-from typing import List
+from dataclasses import dataclass
+from typing import List, Optional
 
 from flask import Response, Flask, request
 from toolz import pipe
@@ -10,12 +10,19 @@ from toolz.curried import filter
 app = Flask(__name__)
 
 
+@dataclass
+class FindActivitiesCriteria:
+    category: Optional[str] = None
+    location: Optional[str] = None
+    district: Optional[str] = None
+
+
 @app.route('/activities', methods=['GET'])
 def get_activities():
     activities = read_file()
     filtered_activities = pipe(
         activities,
-        filter_by_query_params(request.args)
+        filter_by_criteria(request.args)
     )
 
     result = {"text": "hello World"}
@@ -30,27 +37,27 @@ def read_file() -> List[dict]:
         return data
 
 
-def find_activities_by_criteria(criteria):
+def find_activities_by_criteria(criteria: FindActivitiesCriteria):
     activities = read_file()
     filtered_activities = pipe(
         activities,
-        filter_by_query_params(criteria)
+        filter_by_criteria(criteria)
     )
 
     return list(filtered_activities)
 
 
-def filter_by_query_params(query_params: dict) -> callable:
-    if not query_params:
+def filter_by_criteria(criteria: FindActivitiesCriteria) -> callable:
+    if not criteria:
         return lambda activity: activity
 
     return filter(
         lambda activity:
-        filter_by_key(activity, 'category', query_params) or
-        filter_by_key(activity, 'location', query_params) or
-        filter_by_key(activity, 'district', query_params)
+        filter_by_key(activity, 'category', criteria) or
+        filter_by_key(activity, 'location', criteria) or
+        filter_by_key(activity, 'district', criteria)
     )
 
 
-def filter_by_key(activity, key, query_params):
-    return (key in query_params) and (activity[key] == query_params[key])
+def filter_by_key(activity, key, criteria: FindActivitiesCriteria):
+    return hasattr(criteria, key) and (activity[key] == getattr(criteria, key))

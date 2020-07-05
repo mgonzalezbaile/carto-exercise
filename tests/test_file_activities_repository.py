@@ -2,7 +2,7 @@ from assertpy import assert_that
 
 from src.activities_repository import FindActivitiesCriteria
 from src.file_activities_repository import is_activity_satisfied_by_criteria, convert_activity_into_geojson, \
-    fetch_activities_by_criteria_geojson
+    fetch_activities_by_criteria_geojson, is_activity_satisfied_by_time_range
 
 
 def test_should_satisfy_activity_by_simple_criteria():
@@ -135,3 +135,63 @@ def test_should_fetch_activities_by_criteria_in_geojson_format():
             }
         ]
     })
+
+
+def test_should_satisfy_activity_by_hours_spent():
+    activity = {
+        "name": "Parque del Oeste",
+        "opening_hours": {
+            "mo": ["00:00-23:59"],
+            "tu": ["00:00-23:59"],
+            "we": ["00:00-23:59"],
+            "th": ["00:00-23:59"],
+            "fr": ["00:00-23:59"],
+            "sa": ["00:00-23:59"],
+            "su": ["00:00-23:59"]
+        },
+        "hours_spent": 1,
+    }
+
+    criteria = FindActivitiesCriteria(
+        from_time='11:00',
+        to_time='12:00'
+    )
+
+    assert_that(is_activity_satisfied_by_time_range(activity, criteria)).is_true()
+
+    criteria = FindActivitiesCriteria(
+        from_time='11:10',
+        to_time='12:15'
+    )
+
+    assert_that(is_activity_satisfied_by_time_range(activity, criteria)).is_true()
+
+
+def test_should_not_satisfy_activity_by_hours_spent():
+    activity = {
+        "name": "Parque del Oeste",
+        "opening_hours": {
+            "mo": ["00:00-23:59"],
+            "tu": ["00:00-23:59"],
+            "we": ["00:00-23:59"],
+            "th": ["00:00-23:59"],
+            "fr": ["00:00-23:59"],
+            "sa": ["00:00-23:59"],
+            "su": ["00:00-23:59"]
+        },
+        "hours_spent": 1,
+    }
+
+    criteria = FindActivitiesCriteria(
+        from_time='11:00',
+        to_time='11:30'
+    )
+
+    assert_that(is_activity_satisfied_by_time_range(activity, criteria)).is_false()
+
+    criteria = FindActivitiesCriteria(
+        from_time='11:00',
+        to_time='11:59'
+    )
+
+    assert_that(is_activity_satisfied_by_time_range(activity, criteria)).is_false()

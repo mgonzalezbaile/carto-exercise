@@ -1,8 +1,9 @@
 from assertpy import assert_that
 
 from src.activities_repository import FindActivitiesCriteria
-from src.file_activities_repository import is_activity_satisfied_by_criteria, convert_activity_into_geojson, \
-    fetch_activities_by_criteria_geojson, is_activity_satisfied_by_time_range
+from src.file_activities_repository import is_activity_satisfied_by_params, convert_activity_into_geojson, \
+    fetch_activities_by_criteria_geojson, is_activity_satisfied_by_time_range, \
+    fetch_recommended_activity_by_criteria_geojson
 
 
 def test_should_satisfy_activity_by_simple_criteria():
@@ -10,7 +11,7 @@ def test_should_satisfy_activity_by_simple_criteria():
     activity = {'location': location}
     criteria = FindActivitiesCriteria(location=location)
 
-    assert_that(is_activity_satisfied_by_criteria(activity, criteria)).is_true()
+    assert_that(is_activity_satisfied_by_params(activity, criteria)).is_true()
 
 
 def test_should_not_satisfy_activity_by_simple_criteria():
@@ -18,7 +19,7 @@ def test_should_not_satisfy_activity_by_simple_criteria():
     activity = {'location': location}
     criteria = FindActivitiesCriteria(location='another location')
 
-    assert_that(is_activity_satisfied_by_criteria(activity, criteria)).is_false()
+    assert_that(is_activity_satisfied_by_params(activity, criteria)).is_false()
 
 
 def test_should_satisfy_activity_by_composed_criteria():
@@ -28,7 +29,7 @@ def test_should_satisfy_activity_by_composed_criteria():
     activity = {'location': location, 'district': district}
     criteria = FindActivitiesCriteria(location=location, district=district)
 
-    assert_that(is_activity_satisfied_by_criteria(activity, criteria)).is_true()
+    assert_that(is_activity_satisfied_by_params(activity, criteria)).is_true()
 
 
 def test_should_not_satisfy_activity_by_composed_criteria():
@@ -38,7 +39,7 @@ def test_should_not_satisfy_activity_by_composed_criteria():
     activity = {'location': location, 'district': 'another district'}
     criteria = FindActivitiesCriteria(location=location, district=district)
 
-    assert_that(is_activity_satisfied_by_criteria(activity, criteria)).is_false()
+    assert_that(is_activity_satisfied_by_params(activity, criteria)).is_false()
 
 
 def test_should_convert_activity_into_geojson():
@@ -222,3 +223,23 @@ def test_should_not_satisfy_activity_by_time_range_criteria():
     )
 
     assert_that(is_activity_satisfied_by_time_range(activity, criteria)).is_false()
+
+
+def test_should_recommend_activity():
+    criteria = FindActivitiesCriteria(
+        category='shopping',
+        from_time='09:30',
+        to_time='14:30'
+    )
+
+    recommended_activity = fetch_recommended_activity_by_criteria_geojson(criteria)
+    assert_that(recommended_activity['properties']['name']).is_equal_to('El Rastro')
+
+    criteria = FindActivitiesCriteria(
+        category='shopping',
+        from_time='16:30',
+        to_time='20:30'
+    )
+
+    recommended_activity = fetch_recommended_activity_by_criteria_geojson(criteria)
+    assert_that(recommended_activity['properties']['name']).is_equal_to('ECI Nuevos Ministerios')

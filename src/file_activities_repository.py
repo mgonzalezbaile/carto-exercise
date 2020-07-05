@@ -14,7 +14,7 @@ def fetch_activities_by_criteria_geojson(criteria: FindActivitiesCriteria) -> di
 
     filtered_activities = pipe(
         activities,
-        filter(lambda activity: is_activity_satisfied_by_criteria(activity, criteria)),
+        filter(lambda activity: is_activity_satisfied_by_params(activity, criteria)),
         map(lambda activity: convert_activity_into_geojson(activity))
     )
 
@@ -24,7 +24,27 @@ def fetch_activities_by_criteria_geojson(criteria: FindActivitiesCriteria) -> di
     }
 
 
-def is_activity_satisfied_by_criteria(activity: dict, criteria: FindActivitiesCriteria) -> bool:
+def fetch_recommended_activity_by_criteria_geojson(criteria: FindActivitiesCriteria) -> dict:
+    activities = read_file()
+
+    filtered_activities = pipe(
+        activities,
+        filter(lambda activity: is_activity_satisfied_by_params(activity, criteria)),
+        filter(lambda activity: is_activity_satisfied_by_time_range(activity, criteria)),
+        map(lambda activity: convert_activity_into_geojson(activity))
+    )
+
+    longest_visit_time = 0
+    longest_visit_time_activity = {}
+    for activity in filtered_activities:
+        if activity['properties']['hours_spent'] > longest_visit_time:
+            longest_visit_time = activity['properties']['hours_spent']
+            longest_visit_time_activity = activity
+
+    return longest_visit_time_activity
+
+
+def is_activity_satisfied_by_params(activity: dict, criteria: FindActivitiesCriteria) -> bool:
     return (is_activity_satisfied_by_value(activity, 'category', criteria) and
             is_activity_satisfied_by_value(activity, 'location', criteria) and
             is_activity_satisfied_by_value(activity, 'district', criteria))

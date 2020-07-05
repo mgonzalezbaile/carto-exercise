@@ -3,7 +3,8 @@ import json
 from flask import Response, Flask, request
 
 from src.activities_repository import FindActivitiesCriteria
-from src.file_activities_repository import fetch_activities_by_criteria_geojson
+from src.file_activities_repository import fetch_activities_by_criteria_geojson, \
+    fetch_recommended_activity_by_criteria_geojson
 
 app = Flask(__name__)
 
@@ -19,8 +20,15 @@ def get_activities():
     return Response(response=json.dumps(result), headers={'Content-Type': 'application/json'})
 
 
-@app.route('/recommendations', methods=['GET'])
+@app.route('/recommendation', methods=['GET'])
 def get_recommendations():
-    result = {}
+    if not request.args.get('category') or not request.args.get('from_time') or not request.args.get('to_time'):
+        return Response(status=422)
+
+    result = fetch_recommended_activity_by_criteria_geojson(FindActivitiesCriteria(
+        category=request.args.get('category'),
+        from_time=request.args.get('from_time'),
+        to_time=request.args.get('to_time'),
+    ))
 
     return Response(response=json.dumps(result), headers={'Content-Type': 'application/json'})

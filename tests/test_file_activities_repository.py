@@ -138,19 +138,7 @@ def test_should_fetch_activities_by_criteria_in_geojson_format():
 
 
 def test_should_satisfy_activity_by_hours_spent():
-    activity = {
-        "name": "Parque del Oeste",
-        "opening_hours": {
-            "mo": ["00:00-23:59"],
-            "tu": ["00:00-23:59"],
-            "we": ["00:00-23:59"],
-            "th": ["00:00-23:59"],
-            "fr": ["00:00-23:59"],
-            "sa": ["00:00-23:59"],
-            "su": ["00:00-23:59"]
-        },
-        "hours_spent": 1,
-    }
+    activity = {"hours_spent": 1, "opening_hours": {"mo": ["00:00-23:59"]}}
 
     criteria = FindActivitiesCriteria(
         from_time='11:00',
@@ -168,10 +156,27 @@ def test_should_satisfy_activity_by_hours_spent():
 
 
 def test_should_not_satisfy_activity_by_hours_spent():
+    activity = {"hours_spent": 1, "opening_hours": {"mo": ["00:00-23:59"]}}
+
+    criteria = FindActivitiesCriteria(
+        from_time='11:00',
+        to_time='11:30'
+    )
+
+    assert_that(is_activity_satisfied_by_time_range(activity, criteria)).is_false()
+
+    criteria = FindActivitiesCriteria(
+        from_time='11:00',
+        to_time='11:59'
+    )
+
+    assert_that(is_activity_satisfied_by_time_range(activity, criteria)).is_false()
+
+
+def test_should_satisfy_activity_by_time_range_criteria():
     activity = {
-        "name": "Parque del Oeste",
         "opening_hours": {
-            "mo": ["00:00-23:59"],
+            "mo": ["00:00-06:00"],
             "tu": ["00:00-23:59"],
             "we": ["00:00-23:59"],
             "th": ["00:00-23:59"],
@@ -184,14 +189,36 @@ def test_should_not_satisfy_activity_by_hours_spent():
 
     criteria = FindActivitiesCriteria(
         from_time='11:00',
-        to_time='11:30'
+        to_time='12:30'
     )
 
-    assert_that(is_activity_satisfied_by_time_range(activity, criteria)).is_false()
+    assert_that(is_activity_satisfied_by_time_range(activity, criteria)).is_true()
 
     criteria = FindActivitiesCriteria(
-        from_time='11:00',
-        to_time='11:59'
+        from_time='00:01',
+        to_time='23:58'
+    )
+
+    assert_that(is_activity_satisfied_by_time_range(activity, criteria)).is_true()
+
+
+def test_should_not_satisfy_activity_by_time_range_criteria():
+    activity = {
+        "opening_hours": {
+            "mo": ["00:00-06:00"],
+            "tu": ["10:00-12:00"],
+            "we": [],
+            "th": [],
+            "fr": [],
+            "sa": [],
+            "su": []
+        },
+        "hours_spent": 1,
+    }
+
+    criteria = FindActivitiesCriteria(
+        from_time='10:15',
+        to_time='12:30'
     )
 
     assert_that(is_activity_satisfied_by_time_range(activity, criteria)).is_false()

@@ -39,15 +39,25 @@ def is_activity_satisfied_by_value(activity: dict, key: str, criteria: FindActiv
 
 def is_activity_satisfied_by_time_range(activity: dict, criteria: FindActivitiesCriteria) -> bool:
     now = arrow.now()
-    from_time = now.replace(hour=int(criteria.from_time.split(':')[0]), minute=int(criteria.from_time.split(':')[1]), second=0)
-    to_time = now.replace(hour=int(criteria.to_time.split(':')[0]), minute=int(criteria.to_time.split(':')[1]), second=0)
+    visit_from_time = now.replace(hour=int(criteria.from_time.split(':')[0]), minute=int(criteria.from_time.split(':')[1]), second=0)
+    visit_to_time = now.replace(hour=int(criteria.to_time.split(':')[0]), minute=int(criteria.to_time.split(':')[1]), second=0)
 
-    visit_hours = divmod((to_time - from_time).seconds, 3600)[0]
+    visit_hours = divmod((visit_to_time - visit_from_time).seconds, 3600)[0]
 
     if visit_hours < activity['hours_spent']:
         return False
 
-    return True
+    for day, opening_hours in activity['opening_hours'].items():
+        if not opening_hours:
+            continue
+        from_opening_hour = opening_hours[0].split('-')[0]
+        to_opening_hour = opening_hours[0].split('-')[1]
+        from_opening_time = now.replace(hour=int(from_opening_hour.split(':')[0]), minute=int(from_opening_hour.split(':')[1]), second=0)
+        to_opening_time = now.replace(hour=int(to_opening_hour.split(':')[0]), minute=int(to_opening_hour.split(':')[1]), second=0)
+        if visit_from_time.is_between(from_opening_time, to_opening_time) and visit_to_time.is_between(from_opening_time, to_opening_time):
+            return True
+
+    return False
 
 
 def convert_activity_into_geojson(activity: dict) -> dict:

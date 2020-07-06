@@ -22,11 +22,11 @@ def get_activities():
 
 @app.route('/recommendation', methods=['GET'])
 def get_recommendations():
-    if not request.args.get('category') or not request.args.get('from_time') or not request.args.get('to_time'):
+    if not request.args.get('from_time') or not request.args.get('to_time'):
         return Response(status=422)
 
     result = activities_repository().fetch_recommended_activity_by_criteria_geojson(FindActivitiesCriteria(
-        category=request.args.get('category'),
+        category=request.args.get('category', None),
         from_time=request.args.get('from_time'),
         to_time=request.args.get('to_time'),
     ))
